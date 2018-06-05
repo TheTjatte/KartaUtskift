@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title></title>
+    <link rel="stylesheet" href="css/ol.css">
+    <link rel="stylesheet" href="css/main.css">
+  </head>
+  <body>
+    <div id="print">
+      <div id="toolbar">
+        <ul>
+          <li>
+            <img src="img/layers.svg" alt="Background map">
+            <div class="submenu hidden">
+              <ul>
+                <li>
+                  <input type="radio" name="bg-map" value="none" id="bg-none" checked />
+                  <label for="bg-none">Ingen bakgrund</label>
+                </li>
+                <li>
+                  <input type="radio" name="bg-map" value="satellite" id="bg-satellit" />
+                  <label for="bg-satellit">Satellit</label>
+                </li>
+                <li>
+                  <input type="radio" name="bg-map" value="streets-satellite" id="bg-hybrid" />
+                  <label for="bg-hybrid">Hybrid</label>
+                </li>
+                <li>
+                  <input type="radio" name="bg-map" value="streets" id="bg-streets" />
+                  <label for="bg-streets">Vägkarta</label>
+                </li>
+              </ul>
+              <img src="img/close.svg" class="close" alt="Stäng">
+            </div>
+          </li>
+          <li>
+            <img src="img/text.svg" alt="Add text">
+            <div class="submenu text hidden">
+              <h4>Text</h4>
+              <textarea name="name" id="txt-text" rows="5" cols="40" placeholder="Skriv din text här..."></textarea>
+
+              <ul class="">
+                <li>
+                  <label for="sel-font">Typsnitt</label>
+                  <select id="sel-font">
+                    <option value="Times New Roman">Times New Roman</option>
+                    <option value="Arial">Arial</option>
+                    <option value="Verdana">Verdana</option>
+                  </select>
+                </li>
+                <li>
+                  <label for="sel-size">Textstorlek</label>
+                  <select id="txt-size">
+                    <option value="20">20</option>
+                    <option value="24">24</option>
+                    <option value="28">28</option>
+                    <option value="32">32</option>
+                    <option value="40">40</option>
+                    <option value="60">60</option>
+                  </select>
+                </li>
+                <li></li>
+                <li>
+                  <button type="button" id="btn-add-text">Lägg till</button>
+                </li>
+              </ul>
+              <img src="img/close.svg" class="close" alt="Stäng">
+            </div>
+          </li>
+          <li>
+            <img src="img/orientation.svg" alt="Orientation">
+            <div class="submenu hidden">
+              <ul>
+                <li>
+                  <input type="radio" name="orientation" id="landscape" value="landscape" checked />
+                  <label for="landscape"> Liggande</label>
+                </li>
+                <li>
+                  <input type="radio" name="orientation" id="portrait" value="portrait" />
+                  <label for="portrait"> Stående</label>
+                </li>
+              </ul>
+              <img src="img/close.svg" class="close" alt="Stäng">
+            </div>
+          </li>
+          <li>
+            <img src="img/image.svg" alt="Add image">
+            <div class="submenu image hidden">
+              <h4>Text</h4>
+              <div class="drop-area">
+                <span>Släpp din bild här</span><br>
+                <img src="img/cloud.png"><br>
+                <a id="select-file-trigger" href="#">eller välj din fil här...</a>
+                <input type="file" class="hidden" multiple>
+              </div>
+              <div id="image-gallery"></div>
+              <img src="img/close.svg" class="close" alt="Stäng">
+            </div>
+          </li>
+          <li>
+            <img src="img/papersize.svg" alt="Papersize">
+            <div class="submenu hidden">
+              <ul>
+                <li>
+                  <input type="radio" name="papersize" id="a4" value="a4" checked />
+                  <label for="a4">A4</label>
+                </li>
+                <li>
+                  <input type="radio" name="papersize" id="a3" value="a3" />
+                  <label for="a3">A3</label>
+                </li>
+              </ul>
+              <img src="img/close.svg" class="close" alt="Stäng">
+            </div>
+          </li>
+          <li class="pull-right">
+            <button type="button" id="btn-download-pdf">Ladda ner PDF</button>
+          </li>
+        </ul>
+        <div class="clear"></div>
+      </div>
+
+      <div id="map"></div>
+    </div>
+  </body>
+
+  <script type="text/javascript" src="js/jspdf.js"></script>
+  <script type="text/javascript" src="js/ol.js"></script>
+  <script type="text/javascript" src="js/interact.min.js"></script>
+  <script type="text/javascript" src="js/print.js"></script>
+  <script type="text/javascript" src="data.geojson"></script>
+  <script type="text/javascript">
+    var layout = {
+      gallery: [
+        "img/gallery/1.png",
+        "img/gallery/2.png",
+        "img/gallery/3.png",
+        "img/gallery/4.png",
+        "img/gallery/5.png",
+        "img/gallery/6.png"
+      ]
+    };
+
+    var print = new Print({
+      el: document.getElementById("print"),
+      data: data,
+      layout: layout,
+      layoutChangedCallback: function(l) {
+        //save updated layout somewhere
+
+        console.log(JSON.stringify(l));
+      },
+      userImageSelectedCallback: function(images) {
+        // upload images(list of File objects) and call "setLayout"
+        // with updated gallery array that includes newly uploaded image
+
+        console.log("selected", images.length, "files");
+
+        print.setLayout(layout);
+      }
+    });
+
+  </script>
+</html>

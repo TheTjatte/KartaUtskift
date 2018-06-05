@@ -1,0 +1,154 @@
+#toolbar {
+  padding: 13px 20px 10px;
+  background-color: #2195EC;
+}
+
+#toolbar ul {
+  margin: 0;
+  padding: 0;
+  list-style-type: none;
+}
+
+#toolbar ul li {
+  float: left;
+  margin-left: 20px;
+  position: relative;
+}
+
+#toolbar ul li img:hover {
+   cursor: pointer;
+}
+
+#toolbar .submenu {
+  z-index: 2;
+  min-width: 130px;
+  position: absolute;
+  background-color: #fff;
+  border: 1px solid #efefef;
+  border-radius: 2px;
+  left: 0;
+  top: 50px;
+  padding: 10px 30px;
+}
+
+#toolbar .submenu li {
+  margin: 0 0 10px 0;
+}
+
+#toolbar .submenu li:last-child {
+  margin-bottom: 0;
+}
+
+#toolbar .submenu h4 {
+  margin: 0 0 10px;
+  font-weight: normal;
+  font-size: 18px;
+  font-family: Helvetica;
+}
+
+#toolbar .submenu textarea {
+  border: none;
+  font-size: 14px;
+}
+
+#toolbar .submenu textarea:focus {
+  outline-width: 0;
+}
+
+#toolbar .submenu #btn-add-text {
+  float: right;
+}
+
+#toolbar .submenu.text li {
+  margin-right: 10px;
+}
+
+#toolbar .submenu.text li:last-child {
+  margin-right: 0px;
+}
+
+#toolbar .submenu.text button {
+  background-color: #46B43A;
+  color: #fff;
+  text-transform: uppercase;
+  padding: 7px 5px;
+  margin-top: 12px;
+  border: none;
+  border-radius: 5px;
+}
+
+#toolbar .submenu.text select {
+  display: block;
+}
+
+#toolbar .submenu .drop-area {
+  width: 260px;
+  padding: 20px;
+  margin-bottom: 10px;
+  border: 2px dashed #efefef;
+  text-align: center;
+}
+
+#toolbar .submenu .drop-area.hover {
+  border: 2px dashed #000;
+}
+
+#toolbar .submenu .drop-area img {
+  width: 30px;
+  margin: 5px 0;
+}
+
+#toolbar .submenu #image-gallery img:hover {
+  border: 1px solid #46B43A;
+}
+
+#toolbar .submenu .close, .overlay .close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 13px;
+}
+
+.overlay .close:hover {
+  cursor: pointer;
+}
+
+#print {
+  width: 842px;
+  height: 645px;
+  border: 1px solid #8CABC2;
+  margin: 20px auto;
+  position: relative;
+}
+
+#print #map {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  top: 50px;
+}
+
+#print .overlay {
+  position: absolute;
+  background-color: #fff;
+  border: 1px solid #efefef;
+  border-radius: 2px;
+  text-align: center;
+}
+
+#print .overlay .text {
+  margin: 20px;
+}
+
+.clear {
+  clear: both;
+}
+
+.pull-right {
+  float: right !important;
+}
+
+.hidden {
+  display: none;
+}
