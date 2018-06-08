@@ -183,42 +183,62 @@ Print.prototype = {
       }.bind(this));
     }
   },
+  
+  setData: function (data) {
+    this.data = data;
+    this.renderMap();
+  },
 
-  renderMap: function() {
-    this.source = new ol.source.Vector({
-      features: (new ol.format.GeoJSON()).readFeatures(this.data, {
-       dataProjection: 'EPSG:4326',
-       featureProjection: 'EPSG:3857'
-      })
-    });
+   renderMap: function () {
+    this.featuresLayer = undefined;
 
-    this.featuresLayer = new ol.layer.Vector({
-      id: "features",
-      source: this.source,
-      style: (feature) => this.getStyle(feature)
-    });
-
-    var backgrounds = ["satellite", "streets-satellite", "streets"], layers = [];
-
-    for (var i = 0; i < backgrounds.length; i++) {
-      layers.push(new ol.layer.Tile({
-        visible: false, id: backgrounds[i],
-        source: new ol.source.XYZ({
-          maxZoom: 17, crossOrigin: 'anonymous',
-          url: "https://api.tiles.mapbox.com/v4/mapbox." + backgrounds[i] + "/{z}/{x}/{y}.png?access_token=" + "<mapbox_token>"
+    if (this.data && this.data.features && this.data.features.length > 0) {
+      this.source = new ol.source.Vector({
+        features: (new ol.format.GeoJSON()).readFeatures(this.data, {
+          dataProjection: 'EPSG:4326',
+          featureProjection: 'EPSG:3857'
         })
-      }));
+      });
+
+      this.featuresLayer = new ol.layer.Vector({
+        id: "features",
+        source: this.source,
+        style: (feature) => this.getStyle(feature)
+      });
     }
 
-    layers.push(this.featuresLayer);
-    this.map = new ol.Map({
-     target: "map",
-     controls: ol.control.defaults({ zoom: false, attribution: false }).extend([new ol.control.ScaleLine()]),
-     layers: layers,
-     view: new ol.View({ maxZoom: 24 })
-    });
+    var backgrounds = ["satellite", "streets-satellite", "streets"];
+    layers = [];
 
-    this.map.getView().fit(this.source.getExtent(), this.map.getSize(), { padding: [100,100,100,100] });
+      for (var i = 0; i < backgrounds.length; i++) {
+        layers.push(new ol.layer.Tile({
+          visible: false, id: backgrounds[i],
+          source: new ol.source.XYZ({
+            maxZoom: 17, crossOrigin: 'anonymous',
+            url: "https://api.tiles.mapbox.com/v4/mapbox." + backgrounds[i] + "/{z}/{x}/{y}.png?access_token=" + "<mapbox_token>"
+          })
+        }));
+      }
+
+      var mapContainer = sel("#map")
+      while (mapContainer.firstChild) {
+        mapContainer.removeChild(mapContainer.firstChild);
+      }
+
+
+    if (this.featuresLayer) 
+      layers.push(this.featuresLayer);
+
+      this.map = new ol.Map({
+        target: "map",
+        controls: ol.control.defaults({ zoom: false, attribution: false }).extend([new ol.control.ScaleLine()]),
+        layers: layers,
+        view: new ol.View({ maxZoom: 24 })
+      });
+    
+    if(this.source)
+      this.map.getView().fit(this.source.getExtent(), this.map.getSize(), { padding: [100, 100, 100, 100] });
+    
   },
 
   getStyle: function(feature) {
@@ -247,7 +267,7 @@ Print.prototype = {
     return new ol.style.Style({
       stroke: stroke,
       fill: fill,
-      image: image,
+      image: props["_Label"] ? null : image,
       text: text
     });
 
