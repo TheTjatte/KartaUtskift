@@ -122,6 +122,8 @@
       </div>
 
       <div id="map"></div>
+
+      <canvas id="legend-canvas" width="150" height="150" style="display: none;"></canvas>
     </div>
   </body>
 
@@ -131,16 +133,46 @@
   <script type="text/javascript" src="js/print.js"></script>
   <script type="text/javascript" src="data.geojson"></script>
   <script type="text/javascript">
+    var legend = document.getElementById("legend-canvas");
+    var ctx = legend.getContext("2d");
+    //random legend shapes
+    for (var i = 0; i < 6; i++) {
+      for (var j = 0; j < 6; j++) {
+        ctx.fillStyle = 'rgb(' + Math.floor(255 - 42.5 * i) + ', ' +
+                         Math.floor(255 - 42.5 * j) + ', 0)';
+        ctx.fillRect(j * 25, i * 25, 25, 25);
+      }
+    }
+
     var layout = {
-      gallery: [
-        "img/gallery/1.png",
-        "img/gallery/2.png",
-        "img/gallery/3.png",
-        "img/gallery/4.png",
-        "img/gallery/5.png",
-        "img/gallery/6.png"
+      "gallery":["img/gallery/1.png","img/gallery/2.png","img/gallery/3.png","img/gallery/4.png","img/gallery/5.png","img/gallery/6.png"],
+      "overlays":[
+        {
+          "type":"text",
+          "text":"Print title",
+          "font":"Arial",
+          "size":"20px",
+          "x":10,"y":10,
+          "width":200,
+          "height":63
+        },
+        {
+          "type":"image",
+          "img":"http://localhost/dv-print/img/gallery/3.png",
+          "x":700, "y":20,
+          "width":124,
+          "height":123
+        },
+        {
+          type: "legend",
+          canvas: legend,
+          x: 680,
+          y: 430,
+          width: 150,
+          height: 150
+        }
       ]
-    };
+    }
 
     var print = new Print({
       el: document.getElementById("print"),
@@ -154,7 +186,6 @@
       userImageSelectedCallback: function(images) {
         // upload images(list of File objects) and call "setLayout"
         // with updated gallery array that includes newly uploaded image
-
         console.log("selected", images.length, "files");
 
         print.setLayout(layout);

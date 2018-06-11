@@ -49,6 +49,12 @@ Print.prototype = {
         if (ol.type === "image") {
           this.addImageOverlay(ol.img, ol.x, ol.y, ol.width, ol.height);
         }
+
+        if (ol.type === "legend") {
+          var img = new Image();
+          img.src = ol.canvas.toDataURL();
+          this.addImageOverlay(img, ol.x, ol.y, ol.width, ol.height);
+        }
       }
     }
 
@@ -183,13 +189,13 @@ Print.prototype = {
       }.bind(this));
     }
   },
-  
+
   setData: function (data) {
     this.data = data;
     this.renderMap();
   },
 
-   renderMap: function () {
+  renderMap: function() {
     this.featuresLayer = undefined;
 
     if (this.data && this.data.features && this.data.features.length > 0) {
@@ -210,35 +216,34 @@ Print.prototype = {
     var backgrounds = ["satellite", "streets-satellite", "streets"];
     layers = [];
 
-      for (var i = 0; i < backgrounds.length; i++) {
-        layers.push(new ol.layer.Tile({
-          visible: false, id: backgrounds[i],
-          source: new ol.source.XYZ({
-            maxZoom: 17, crossOrigin: 'anonymous',
-            url: "https://api.tiles.mapbox.com/v4/mapbox." + backgrounds[i] + "/{z}/{x}/{y}.png?access_token=" + "<mapbox_token>"
-          })
-        }));
-      }
+    for (var i = 0; i < backgrounds.length; i++) {
+      layers.push(new ol.layer.Tile({
+        visible: false, id: backgrounds[i],
+        source: new ol.source.XYZ({
+          maxZoom: 17, crossOrigin: 'anonymous',
+          url: "https://api.tiles.mapbox.com/v4/mapbox." + backgrounds[i] + "/{z}/{x}/{y}.png?access_token=" + "<mapbox_token>"
+        })
+      }));
+    }
 
-      var mapContainer = sel("#map")
-      while (mapContainer.firstChild) {
-        mapContainer.removeChild(mapContainer.firstChild);
-      }
+    var mapContainer = sel("#map")
+    while (mapContainer.firstChild) {
+      mapContainer.removeChild(mapContainer.firstChild);
+    }
 
 
-    if (this.featuresLayer) 
+    if (this.featuresLayer)
       layers.push(this.featuresLayer);
 
-      this.map = new ol.Map({
-        target: "map",
-        controls: ol.control.defaults({ zoom: false, attribution: false }).extend([new ol.control.ScaleLine()]),
-        layers: layers,
-        view: new ol.View({ maxZoom: 24 })
-      });
-    
+    this.map = new ol.Map({
+      target: "map",
+      controls: ol.control.defaults({ zoom: false, attribution: false }).extend([new ol.control.ScaleLine()]),
+      layers: layers,
+      view: new ol.View({ maxZoom: 24 })
+    });
+
     if(this.source)
       this.map.getView().fit(this.source.getExtent(), this.map.getSize(), { padding: [100, 100, 100, 100] });
-    
   },
 
   getStyle: function(feature) {
@@ -348,7 +353,7 @@ Print.prototype = {
     }
   },
 
-  addImageOverlay: function(path, x, y, width, height) {
+  addImageOverlay: function(img, x, y, width, height) {
     var div = document.createElement("div");
     div.classList.add("overlay");
     div.style.maxWidth = "500px";
@@ -360,12 +365,18 @@ Print.prototype = {
     div.setAttribute("data-offset-y", y || 0);
     this.addCloseButton(div);
 
-    var img = document.createElement("img");
-    img.className = "image";
-    img.src = path;
-    img.style.width = "100%";
-    img.crossOrigin = "anonymous";
-    div.appendChild(img)
+    var image;
+    if (typeof img === "string") { //got path to an image
+      var image = document.createElement("img");
+      image.src = img;
+    } else { //got image element(legend canvas)
+      image = img;
+    }
+
+    image.className = "image";
+    image.style.width = "100%";
+    image.crossOrigin = "anonymous";
+    div.appendChild(image)
     sel("#map").appendChild(div);
 
     this.makeDraggable();
@@ -446,8 +457,9 @@ Print.prototype = {
         this.renderOverlayToCanvas(overlays[i], ctx);
       }
 
-      doc.addImage(canvas.toDataURL('image/png'), 'JPEG', 0, 0,
-        this.px2mm(this.pageWidth()), this.px2mm(this.pageHeight()));
+      this.renderScaleline(ctx);
+
+      doc.addImage(canvas.toDataURL('image/png'), 'PNG', 0, 0, this.px2mm(this.pageWidth()), this.px2mm(this.pageHeight()));
       doc.save('a4.pdf');
 
       //remove overlays drawn on map canvas
@@ -467,13 +479,15 @@ Print.prototype = {
           fontSize = text.getAttribute("data-size").split("px")[0];
 
       ctx.lineWidth = 1;
-      ctx.strokeStyle = "#EFEFEF"
+      ctx.strokeStyle = "#EFEFEF";
       ctx.strokeRect(offsetX, offsetY, el.clientWidth, el.clientHeight);
       ctx.fillStyle = "#FFFFFF";
       ctx.fillRect(offsetX, offsetY, el.clientWidth, el.clientHeight);
       ctx.fillStyle = "#000000";
       ctx.font = fontSize + "px " + text.getAttribute("data-font");
-      ctx.fillText(text.innerText, offsetX + text.offsetLeft, offsetY + text.offsetTop + parseInt(fontSize));
+      ctx.textAlign="center";
+      ctx.textBaseline = "middle";
+      ctx.fillText(text.innerText, offsetX + el.clientWidth/2, offsetY + el.clientHeight/2);
     }
 
     if (el.querySelector(".image")) {
@@ -481,6 +495,30 @@ Print.prototype = {
 
       ctx.drawImage(img, offsetX, offsetY);
     }
+  },
+
+  renderScaleline: function(ctx) {
+    var scale = sel(".ol-scale-line"),
+        scaleText = sel(".ol-scale-line-inner").innerText,
+        width = scale.clientWidth,
+        height = scale.clientHeight,
+        offsetX = scale.offsetLeft,
+        offsetY = scale.offsetTop,
+        margin = 3;
+
+    ctx.lineWidth = 1;
+    ctx.strokeStyle = "rgba(255, 255, 255, 1)";
+    ctx.fillStyle = "#BDC5DA";
+    ctx.fillRect(offsetX, offsetY, scale.clientWidth, scale.clientHeight);
+    ctx.beginPath();
+    ctx.moveTo(offsetX + margin, offsetY + margin);
+    ctx.lineTo(offsetX + margin, offsetY + height - margin);
+    ctx.lineTo(offsetX + width - margin, offsetY + height - margin);
+    ctx.lineTo(offsetX + width - margin, offsetY + margin);
+    ctx.stroke();
+    ctx.font = "normal 10px Arial";
+    ctx.textAlign = "center";
+    ctx.strokeText(scaleText, offsetX + width/2, offsetY + margin + height/2 - margin);
   },
 
   pageWidth: function() {
