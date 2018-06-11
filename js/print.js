@@ -58,7 +58,7 @@ Print.prototype = {
       }
     }
 
-    this.renderGallery();
+    this.renderGallery(layout);
   },
 
   updateLayout: function() {
@@ -156,13 +156,13 @@ Print.prototype = {
     }.bind(this));
   },
 
-  renderGallery: function() {
-    if (this.layout && this.layout.gallery) {
+  renderGallery: function(layout) {
+    if (layout && layout.gallery) {
       var gallery = sel("#image-gallery");
       gallery.innerHTML = "";
-      for (var i = 0; i < this.layout.gallery.length; i++) {
+      for (var i = 0; i < layout.gallery.length; i++) {
         var img = document.createElement("img");
-        img.src = this.layout.gallery[i];
+        img.src = layout.gallery[i];
         img.style.width = "50px";
         img.addEventListener("click", function(e) {
           this.addImageOverlay(e.target.src);
@@ -368,18 +368,24 @@ Print.prototype = {
     var image;
     if (typeof img === "string") { //got path to an image
       var image = document.createElement("img");
-      image.src = img;
+      this.toDataURL(img, (data) => {
+        image.src = data;
+        this.appendImage(div, image);
+      })
     } else { //got image element(legend canvas)
       image = img;
+      this.appendImage(div, image);
     }
 
+    this.makeDraggable();
+  },
+
+  appendImage(container, image) {
     image.className = "image";
     image.style.width = "100%";
     image.crossOrigin = "anonymous";
-    div.appendChild(image)
-    sel("#map").appendChild(div);
-
-    this.makeDraggable();
+    container.appendChild(image)
+    sel("#map").appendChild(container);
   },
 
   addCloseButton: function(div) {
@@ -531,5 +537,23 @@ Print.prototype = {
 
   px2mm: function(px) {
     return Math.round(px * 0.35294);
+  },
+  
+  toDataURL(url, callback) {
+    var xhr = new XMLHttpRequest();
+    
+    xhr.onload = function () {
+      var reader = new FileReader();
+      reader.onloadend = function () {
+        callback(reader.result);
+      }
+      reader.readAsDataURL(xhr.response);
+    };
+    xhr.open('GET', url);
+    xhr.setRequestHeader('Access-Control-Allow-Headers', '*');
+    xhr.setRequestHeader('Access-Control-Allow-Origin', '*');
+    xhr.withCredentials = false;
+    xhr.responseType = 'blob';
+    xhr.send();
   }
 }
